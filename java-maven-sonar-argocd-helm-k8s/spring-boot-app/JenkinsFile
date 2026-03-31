@@ -1,13 +1,13 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.9.2-openjdk-17'   // Maven + JDK preinstalled
+            image 'maven:3.9.2-openjdk-17'              // Maven + JDK preinstalled
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'  // Docker access
         }
     }
 
     environment {
-        SONAR_URL = "http://host.docker.internal:9000"   // WSL host SonarQube
+        SONAR_URL = "http://host.docker.internal:9000"   // Local SonarQube URL
         GIT_USER_NAME = "prudhvireddy522"
         GIT_REPO_NAME = "Jenkins"
     }
