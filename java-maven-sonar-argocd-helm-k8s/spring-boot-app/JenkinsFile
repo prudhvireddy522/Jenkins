@@ -18,15 +18,10 @@ pipeline {
             }
         }
 
-       stage('Build and Test') {
-    agent {
-        docker {
-            image 'maven:3.9.9-eclipse-temurin-17'
-        }
-    }
-    steps {
-        dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-            sh 'mvn clean package -DskipTests'
+        stage('Build and Test') {
+            steps {
+                dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -35,11 +30,11 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
                     dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-                        sh """
+                        sh '''
                         mvn sonar:sonar \
-                        -Dsonar.host.url=${SONAR_URL} \
-                        -Dsonar.login=${SONAR_TOKEN}
-                        """
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=$SONAR_TOKEN
+                        '''
                     }
                 }
             }
@@ -64,17 +59,18 @@ pipeline {
         stage('Update Deployment File') {
             steps {
                 withCredentials([string(credentialsId: 'github-creds', variable: 'GITHUB_TOKEN')]) {
-                    sh """
+                    dir('java-maven-sonar-argocd-helm-k8s') {
+                        sh '''
                         git config user.email "prudhvireddy522@gmail.com"
-                        git config user.name "${GIT_USER_NAME}"
+                        git config user.name "prudhvireddy522"
 
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" \
-                        java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
 
                         git add .
                         git commit -m "Update image to ${BUILD_NUMBER}" || echo "No changes"
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                    """
+                        git push https://${GITHUB_TOKEN}@github.com/prudhvireddy522/Jenkins.git HEAD:main
+                        '''
+                    }
                 }
             }
         }
