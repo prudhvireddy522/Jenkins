@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONAR_URL = "http://localhost:9000"
+        SONAR_URL = "http://sonarqube:9000"
         IMAGE_NAME = "prudhvireddy522/ultimate-cicd"
         GIT_USER_NAME = "prudhvireddy522"
         GIT_REPO_NAME = "Jenkins"
