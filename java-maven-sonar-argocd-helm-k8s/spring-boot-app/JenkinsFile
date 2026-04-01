@@ -18,10 +18,15 @@ pipeline {
             }
         }
 
-        stage('Build and Test') {
-            steps {
-                dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-                    sh 'mvn clean package -DskipTests'
+       stage('Build and Test') {
+    agent {
+        docker {
+            image 'maven:3.9.9-eclipse-temurin-17'
+        }
+    }
+    steps {
+        dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
+            sh 'mvn clean package -DskipTests'
                 }
             }
         }
